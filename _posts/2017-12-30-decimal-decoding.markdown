@@ -4,7 +4,7 @@ title:  "JSON and Decimal numbers"
 date:   2017-12-30 23:00:00 +0200
 ---
 
-A JSON document can contain numbers, written in decimal notation. The standard does not specify any type for these numbers – a number is just defined syntactically as a sequence of digits, optionally followed by a dot and some more digits.  (There may also be a minus sign in the front and there may be a an exponent in the end – please see [the standard](http://json.org/) for the exact specification.)
+A JSON document can contain numbers, written in decimal notation. The standard does not specify any type for these numbers – a number is just defined syntactically as a sequence of digits, optionally followed by a dot and some more digits.  (There may also be a minus sign in the front and an exponent in the end – see [the standard](http://json.org/) for the exact specification.)
 
 A JSON parser should do the best job it can to preserve this information in the types available to the programmer.  In this blog post I am taking a look at the tools available on the Apple platforms, and explore a problem that occurs when using the `Decimal` type. 
 
@@ -29,7 +29,7 @@ printInfo(parseJsonArray("[5, 3.133]")
 // __NSCFNumber - 3.133
 ```
 
-This being a typical Objective-C API, we're not specifying what types we expect; the framework parses into types it sees fitting, and it this case we get a private subclass of `NSNumber` called `__NSCFNumber`.  Exactly how that stores the number, we are not told. Do we always get this type for numbers? No:
+This being a typical Objective-C API, we're not specifying what types we expect; the framework parses into types it sees fitting, and in this case we get a private subclass of `NSNumber` called `__NSCFNumber`.  Exactly how that type stores the number, we are not told. So, do we always get this type for numbers? No:
 
 ```swift
 printInfo(parseJsonArray("[1.23456789123456789]"))
@@ -37,11 +37,11 @@ printInfo(parseJsonArray("[1.23456789123456789]"))
 // NSDecimalNumber - 1.23456789123456789
 ```
 
-It has now switched to an `NSDecimalNumber`.  In all cases, whether we get an `__NSCFNumber` or an `NSDecimalNumber`, we can get a string representation of the parsed number that is exactly as how we wrote it in the JSON – no precision was lost. It presumably chooses an NSDecimalNumber where it can no longer fit tshe decimals in the mantissa of a Double.  
+It has now switched to an `NSDecimalNumber`.  In all cases, whether we get an `__NSCFNumber` or an `NSDecimalNumber`, we can get a string representation of the parsed number that is exactly as how we wrote it in the JSON – no precision was lost. It presumably chooses an NSDecimalNumber where it can no longer fit the decimals in the mantissa of a Double.  
 
 ## JSONDecoder
 
-With Swift 4, the `Codable` API arrived.  This gives us a new, more Swifty way of decoding JSON.  Now the programmer specifie the types to expect.  For most use cases, if you expect non-integer numbers, you will use the `Double` type.
+With Swift 4, the `Codable` API arrived.  This gives us a new, more Swifty way of decoding JSON.  Now the programmer specifies the types to expect.  For most use cases, if you expect non-integer numbers, you will use the `Double` type.
 
 ```swift
 func parseJsonDoubleArray(_ jsonString: String) -> [Double] {
@@ -52,7 +52,7 @@ parseJsonDoubleArray("[5, 3.133]") // 5, 3.133
 parseJsonDoubleArray("[1.23456789123456789]") // 1.2345678912345678
 ```
 
-Note the truncation in the latter example – there are more digits than fit in the mantissa of a `Double`.  If you would need that many decimals, you might then want to choose the `Decimal` type instead. 
+Note the truncation in the latter example – there are more digits than can fit.  If you would need that many decimals, you might then want to choose the `Decimal` type instead. 
 
 There are also other, probably more typical, situations where you may prefer `Decimal`. Decimal math is generelly preferred for example when dealing with currency, and you may want to decode directly into such a type. 
 
@@ -71,19 +71,19 @@ Hmmm.
 
 ## What's going on here? 
 
-Before we get to this problem that appears to happen when we use _decimal_ floating point math, we have to talk a bit about _binary_ floating point. So, binary floating point – that's the kind we generally use, with types that programming languages typically call _float_ and _double_. These can be kind of difficult to really wrap your head around.  
+Before we get to this problem that appears to happen when we use _decimal_ floating point math, we have to talk a bit about _binary_ floating point. Binary floating point is the kind that we generally use, with types that programming languages typically call _float_ and _double_. 
 
-We can write things like `let foo: Double = 0.1` all day long, and the compiler will be happy, so it's easy to forget that we can't actually represent that value as a binary floating point number. But just think about how the number 1/3 can't be represented in decimal notation – no finite sequence of 0.33333... will ever reach the value – and you can imagine how not all decimal quotients are representable in binary.  
+These can be kind of difficult to really wrap your head around.  We can write things like `let foo: Double = 0.1` all day long, and the compiler will be happy, and the number will print as "0.1" – so it iss easy to forget that we can't actually represent that value as a binary floating point number. Just think about how the number 1/3 can't be represented in decimal notation – no finite sequence of 0.33333... will ever reach the value – and you can imagine how not all decimal quotients are representable in binary.  
 
-Now, the whole point of a type like `Decimal` is to overcome this problem, when it is a problem. With a `Decimal`, you can precisely represent both 0.1 and 3.133.
+Now, the whole point of a type like `Decimal` is to overcome this problem. With a `Decimal`, you can precisely represent both 0.1 and 3.133.
 
 ```swift
 let myDecimal = Decimal(string: "3.133")! // 3.133
 ```
 
-There is no reason why a JSON decoder shouldn't be able to do this.  Unfortunately, `JSONDecoder` doesn't do JSON decoding of its own – it wraps `JSONSerialization`. One way to conclude that this is the case is to give it some invalid JSON as input, and you may recognize the errors as JSONSerialization errors, but we can also take a look at the source code – [here](https://github.com/apple/swift/blob/128092a7d60b57b8e6d69c8bda48f413b3d418b1/stdlib/public/SDK/Foundation/JSONEncoder.swift#L1060) is the call to JSONSerialization.
+There is no reason why a JSON decoder shouldn't be able to do this.  Unfortunately, `JSONDecoder` doesn't do JSON decoding of its own – it wraps `JSONSerialization`. (One way to conclude that this is the case is to give it some invalid JSON as input, and you may recognize the errors as JSONSerialization errors, but we can also take a look at the source code – [here](https://github.com/apple/swift/blob/128092a7d60b57b8e6d69c8bda48f413b3d418b1/stdlib/public/SDK/Foundation/JSONEncoder.swift#L1060) is the call to JSONSerialization.)
 
-So, we are then not simply reading a decimal number string into a decimal number type, but converting via a binary floating point number.  In [the method](https://github.com/apple/swift/blob/d726bd85a24812065cf6164514144f9bbbf9fc5d/stdlib/public/SDK/Foundation/JSONEncoder.swift#L2309-L2319) with signature `func unbox(_ value: Any, as type: Decimal.Type) throws -> Decimal?` we can find how this conversion happens. 
+So, we are then not simply reading a decimal number string into a decimal number type, but converting via a binary floating point number.  In [the method](https://github.com/apple/swift/blob/d726bd85a24812065cf6164514144f9bbbf9fc5d/stdlib/public/SDK/Foundation/JSONEncoder.swift#L2309-L2319) with signature `func unbox(_ value: Any, as type: Decimal.Type) throws -> Decimal?` we find how this conversion happens. 
 
 ```swift
         // Attempt to bridge from NSDecimalNumber.
@@ -123,5 +123,10 @@ func decimalBad(from double: Double) -> Decimal {
 }
 ```
 
-I might very well be missing something here. This isn't new behavior, `[[NSDecimalNumber alloc] initWithDouble:3.133]` works the same way. 
+I might very well be missing something here. This isn't new behavior, `[[NSDecimalNumber alloc] initWithDouble:3.133]` works the same way. If anyone can tell me why the initializer of decimal numbers from binary floating point doesn't use the same kind of decimalization algorithm as the string representation does, I'd be curious to know. 
 
+## Conclusion
+
+A few people who read the initial version of this text pointed out that the most reliable way of passing a decimal number via JSON is in a string.  That is probably the most pragmatic thing to do, if you have the possibility.  In some cases, however, the API is already a fact.  If you are using `JSONDecoder`, you might prefer to use a `Double` rather than a `Decimal` as the decoded type even if you want the end result to be a `Decimal`, and do the conversion yourself, possibly via a `String`.  Unless someone fixes `JSONDecoder`. 
+
+_Thanks to Tim Vermeulen for bringing up the issue, Helge Heß and Roland Persson for discussions on the topic and Emre Berge Ergenekon for proof-reading._
