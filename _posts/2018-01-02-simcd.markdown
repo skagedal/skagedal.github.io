@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "simcd: Xcode Simulator integration in the shell"
+title:  "Xcode Simulator integration in zsh"
 date:   2018-01-02 22:00:00 +0200
 ---
 
@@ -40,7 +40,7 @@ Put that somewhere where `zsh` can read it; if you're using `oh-my-zsh`, you can
 
 Now open a new shell.  You should now be able to type `simcd com.myapps.bundle.id`. 
 
-## But what is my bundle ID?
+## Listing available apps
 
 The above is nice, but you have to remember the bundle ID of the app you're working on and type it, or find it and copy and paste.  Wouldn't it be nice if you could just select from running apps?  We'd really like this thing to be auto-completing.  First we need to find out what apps are installed on the simulator.  `xcrun simctl` to the rescue again:
 
