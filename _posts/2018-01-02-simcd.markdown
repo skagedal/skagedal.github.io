@@ -1,0 +1,101 @@
+---
+layout: post
+title:  "simcd: Xcode Simulator integration in the shell"
+date:   2018-01-02 22:00:00 +0200
+---
+
+When running an app in Xcode's iPhone simulator, you'll often want to locate the place on disk where the app stores its documents and other local files, i.e., the app's data container.  There are some nice tools that help out with this, such as [SimPholders](https://simpholders.com/) and [simsim](https://github.com/dsmelov/simsim).  Being a command line user, however, I would really like to have something integrated in my shell.
+
+Let's take a look at how to do this and develop a plugin for `zsh`.  (If you just want the plugin, [here you go](https://gist.github.com/skagedal/6fda34e0bc5f532e02dd51314554bcdd).)
+
+# Finding the data container 
+
+Many developer tools are accessible from the command line via the `xcrun` command.  It is structured with subcommands, and one of these is `simctl` with which you can do all kinds of stuff with simulators.  Here's how you can get the directory.  
+
+```shell
+xcrun simctl get_app_container booted <BUNDLE_ID> data
+```
+
+Instead of `<BUNDLE_ID>`, obviously, use your app's bundle ID.  `booted` here stands for the currently running simulator – it will only work if you are only running one. 
+
+To change to that directory, you can type:
+
+```shell
+cd `xcrun simctl get_app_container booted <BUNDLE_ID> data`
+```
+
+That's a lot to type and remember, so let's make it into a `zsh` function.
+
+```shell
+function simdir () { 
+	xcrun simctl get_app_container booted $1 data 
+}
+
+function simcd () {
+	cd `simdir $1`
+}
+```
+
+Put that somewhere where `zsh` can read it; if you're using `oh-my-zsh`, you can put it in a file with the path `~/.oh-my-zsh/custom/simulator.zsh`.  
+
+Now open a new shell.  You should now be able to type `simcd com.myapps.bundle.id`. 
+
+## But what is my bundle ID?
+
+The above is nice, but you have to remember the bundle ID of the app you're working on and type it, or find it and copy and paste.  Wouldn't it be nice if you could just select from running apps?  We'd really like this thing to be auto-completing.  First we need to find out what apps are installed on the simulator.  `xcrun simctl` to the rescue again:
+
+```shell
+xcrun simctl listapps booted
+```
+
+This outputs a list of installed apps in the [old-style ASCII property list](https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html) format.  The most reliable way of extracting this data would be to use a plist aware parser.  I first took a look at using [PlistBuddy](https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man8/PlistBuddy.8.html), but I could not see how to get what I wanted, so I decided to go for a plain old shell pipeline.
+
+```shell
+xcrun simctl listapps booted | \
+	grep CFBundleIdentifier | \
+	cut -d '=' -f 2 | \
+	grep -oE '[a-zA-Z0-9.-]+'`
+```
+
+## Creating zsh completions
+
+Shell programming always kind of gives me a headache.  My usual strategy is to google for similar examples, try to read the manuals if you have to and and some point you get something that seems to work.  The experience of creating a zsh completion was no different.  [This guide](https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org) seemed to be the best available, much more accessible than the `zsh` manual.  So instead of trying to explain what's happening, here's what I ended up with. 
+
+```shell
+_simdir() {
+	local state
+
+	_arguments \
+		'1: :->bundle_identifier'\
+		'*: :->rest'
+
+	case $state in
+		(bundle_identifier) _arguments '1:Bundle identifier:($(_bundle_identifiers))' ;;
+              	(*) compadd "$@"
+  	esac
+  }
+
+compdef _simdir simdir simcd
+```
+
+And yay, it works! Now you can use both `simdir` and `simcd` with auto-completion of the bundle identifier. It is now easy to add other commands that take a bundle identifier and make the auto-completing as well. 
+
+I added these two. 
+
+```shell
+function simpushd () { 
+	pushd `simdir $1` 
+}
+
+function simopen() {
+	open `simdir $1`
+}
+```
+
+Adding `simpushd` and `simopen` to the line that starts with `compdef` makes them auto-completable. 
+
+## Future developments
+
+I really should not just allow the currently booted device, but any simulator on the system.  That should also be completable.  Actually, it would be nice of all of `xcrun simctl` was completable.  This functionality should live somewhere, maybe best in the plugins that come bundled with oh-my-zsh – there are already [some Xcode utilities](https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/xcode) there. 
+
+But enough yak shaving for now.  [Here is all of the above as a Gist.](https://gist.github.com/skagedal/6fda34e0bc5f532e02dd51314554bcdd)
