@@ -59,7 +59,7 @@ xcrun simctl listapps booted | \
 
 ## Creating zsh completions
 
-Shell programming always kind of gives me a headache.  My usual strategy is to google for similar examples, try to read the manuals if you have to and and some point you get something that seems to work.  The experience of creating a zsh completion was no different.  [This guide](https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org) seemed to be the best available, much more accessible than the `zsh` manual.  So instead of trying to explain what's happening, here's what I ended up with. 
+Shell programming always kind of gives me a headache.  My usual strategy is to google for similar examples, try to read the manuals if you have to and at some point you get something that seems to work.  The experience of creating a zsh completion was no different.  [This guide](https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org) seemed to be the best available, much more accessible than the `zsh` manual, but still shell programming.  So instead of trying to explain what's happening, here's what I ended up with. 
 
 ```shell
 _simdir() {
@@ -78,7 +78,7 @@ _simdir() {
 compdef _simdir simdir simcd
 ```
 
-And yay, it works! Now you can use both `simdir` and `simcd` with auto-completion of the bundle identifier. It is now easy to add other commands that take a bundle identifier and make the auto-completing as well. 
+And yay, it works! Now you can use both `simdir` and `simcd` with auto-completion of the bundle identifier. It is now easy to add other commands that take a bundle identifier and make them auto-completing as well. 
 
 I added these two. 
 
@@ -96,6 +96,6 @@ Adding `simpushd` and `simopen` to the line that starts with `compdef` makes the
 
 ## Future developments
 
-I really should not just allow the currently booted device, but any simulator on the system.  That should also be completable.  Actually, it would be nice of all of `xcrun simctl` was completable.  This functionality should live somewhere, maybe best in the plugins that come bundled with oh-my-zsh – there are already [some Xcode utilities](https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/xcode) there. 
+I really should not just allow the currently booted device, but any simulator on the system.  That should also be completable.  Actually, it would be nice if all of `xcrun simctl` was completable.  This functionality should live somewhere, maybe best in the plugins that come bundled with oh-my-zsh – there are already [some Xcode utilities](https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/xcode) there. 
 
 But enough yak shaving for now.  [Here is all of the above as a Gist.](https://gist.github.com/skagedal/6fda34e0bc5f532e02dd51314554bcdd)
