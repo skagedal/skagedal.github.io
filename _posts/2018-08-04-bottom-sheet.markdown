@@ -67,13 +67,15 @@ When the delegate method `bottomSheet(:didScrollTo:)` is called in the container
 <img src="/images/bottom-sheet/bottom-sheet-3.gif" class="center" />
 </figure>
 
-Now it's time to add a little style to that background view.  Here's probably where your designer would supply some assets for corners and probably one of those handle bar.  For this example, we will just add a corner radius and a border to the layer. As we don't want these borders to show on the sides, we modify the size of the layer so that it is just outside the visible view.  While we could have instead chosen to set the constraints to layout the background this way, I like that we can let this be a stylistic implementation detail that the BottomSheetContainerViewController doesn't have to know about.
+## Adding some style
+
+Now it's time to add a little style to that background view.  Here's probably where your designer would supply some assets for corners and probably one of those handle bar.  For this example, we will just add a corner radius and a border to the layer. 
+
+As we don't want these borders to show on the sides, we modify the size of the layer so that it is just outside the visible view.  While we could have instead chosen to set the constraints to layout the background this way, I like that we can let this be a stylistic implementation detail that the BottomSheetContainerViewController doesn't have to know about.
 
 <figure>
 <img src="/images/bottom-sheet/bottom-sheet-4.gif" class="center" />
 </figure>
-
-Looking good, huh!
 
 ## Directing the taps
 
@@ -133,7 +135,9 @@ if tableView.contentSize.height < tableView.bounds.height {
 
 ## Conclusion
 
-I think that the technique I have described here is a pretty nice way to get the desired behavior, although there are a few hoops you have to jump through.  Architecturally, there are some things that we might want to improve.  It would be nice could contain everything about the bottom sheet in the BottomSheetContainerViewController – currently we need to do some stuff in the table view controller itself.  While we could refactor some things, it seems difficult to make the table view controller completely ignorant of the fact that it's used as a bottom sheet.  
+I think that the technique I have described here is a pretty nice way to get the desired behavior, although there are a few hoops you have to jump through.  Architecturally, there are some things that we might want to improve.  It would be nice if we could contain everything about the bottom sheet in the BottomSheetContainerViewController – currently we need to do handle stuff in the table view controller itself.  While we could refactor some things, it seems difficult however to make the table view controller completely ignorant of the fact that it's used as a bottom sheet, since we have to hook into some scroll view delegate methods.  
+
+A caveat is that, while I have successfully used this technique in a production app used by many, the variant I have presented here is not battle-tested code and may have issues.  There aren't many lines of code here; please feel free to use and adapt them however you like.  And do send me any feedback or alternative approaches. 
 
 ---
 
