@@ -21,7 +21,7 @@ A while back, I was investigating the animations in UITableView and UICollection
 
 The same set of animations, with items instead of rows, are available for collection views. These animations can also be batched, so that several operations are animated at once. 
 
-If you've ever used these methods, you may have become acquainted with the dreaded _NSInternalInconsistencyException_. The thing is, whenever you ask a table view to – for example – insert one row in a section, you have to make sure that you when it calls your data source's `numberOfRows(inSection:)`, it has increased the value by one relative to before your animations. 
+If you've ever used these methods, you may have become acquainted with the dreaded _NSInternalInconsistencyException_. The thing is, whenever you ask a table view to – for example – insert one row in a section, you have to make sure that when it calls your data source's `numberOfRows(inSection:)`, it has increased the value by one. 
 
 When you start out with table views and iOS programming, it may happen that you try to add logic in your data source methods that may look a little something like this: 
 
@@ -39,23 +39,23 @@ There are several good such tools around.  They typically use the _Longest Commo
 
 What I became preoccupied with was the question of how to make such a diffing method that handled both items (rows) and sections and worked for _any_ input. Basically, I wanted a function like:
 
-```
+```swift
 func diff(from oldSections: [(SectionType, [ItemType])], 
           to newSections: [(SectionType, [ItemType])]) -> BatchChanges
 ```
-And then this `BatchChanges` would contain everything that you needed to send to the animation methods. It turned out that this was quite hard, because there were diffs that were impossible to perform in just one step – namely, when an item moves from one section to another, and that section also moves at the same time.  You have to:
+And then this `BatchChanges` would contain everything that you needed to send to the animation methods. It turned out that this was quite hard, because there were diffs that were impossible to perform in just one step – for example, when an item moves from one section to another, and that section also moves at the same time.  Instead, you have to:
 
-* first diff the sections from old to new,
-* then _apply_ that diff to your old items (let's call the result of that the patched items),
+* first diff the _sections_ from old to new,
+* then _apply_ that diff to your old _items_ (let's call the result of that the patched items),
 * then diff your items from your patched items to the new items. 
 
 Then _first_ perform the section animations – and while that happens make sure to return the per-section item counts from the _patched_ items – _then_ perform the item animations.
 
-Phew. I don't even remember, I think that's how it needs to be done, from reading my old sources. 
+Phew. 
 
 ## This is boring, let's play Tetris
 
-So, after I had my very general `DataSource<SectionType, ItemType>` I wanted to do something crazy with it, to kind of see what you can do. 
+So anyway, after I had my very general `DataSource<SectionType, ItemType>` that could handle animation of changes from any state to any other, I wanted to do something crazy with it, to kind of see what you can do. 
 
 I got the idea of a Collection View Tetris. Here it is. 
 
@@ -67,7 +67,7 @@ Here, every Tetris row is a collection view section consisting of ten cells.  Ea
 
 I thought it was a fun hack.  It's been sitting around on my computer for a while now, waiting for me to do a presentation that never happened, so now I thought I'd just publish it.  I don't actually use the DataSource, because I haven't needed anything more than just animating rows within a single section.  Keep it simple, huh?
 
-For the color literals and other fun, [see the source on Github](https://github.com/skagedal/SKRBatchUpdates).
+For all the fun, [see the source on Github](https://github.com/skagedal/SKRBatchUpdates).  The color literals?  Unfortunately, they do not look as awesome in Github as they do in Xcode, and I don't really recommend the use of them.  Nor do I recommend that you use a UICollectionView for your next game.  I do recommend having fun with things. 
 
 
 
