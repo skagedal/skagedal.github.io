@@ -35,7 +35,7 @@ func numberOfRows(inSection section: Int) -> Int {
 
 This kind of approach always ends in tears.  It very quickly gets very hard to keep all the state consistent.  Instead, you always want a model that represents the full state – an array, typically – and if you want to animate from one state to another, use a _differ_ to calculate what rows and sections to insert, delete or move.  
 
-There are several good such tools around.  They typically use the _Longest Common Subsequence_ algorithm to perform the diff, which is what you should use for good performance characteristics.  (Please tweet me the best ones and I'll update this text.) 
+There are several good such tools around.  They typically use the _Longest Common Subsequence_ algorithm to perform the diff, which is what you should use for good performance characteristics.
 
 What I became preoccupied with was the question of how to make such a diffing method that handled both items (rows) and sections and worked for _any_ input. Basically, I wanted a function like:
 
@@ -69,6 +69,6 @@ I thought it was a fun hack.  It's been sitting around on my computer for a whil
 
 For all the fun, [see the source on Github](https://github.com/skagedal/SKRBatchUpdates).  The color literals?  Unfortunately, they do not look as awesome in Github as they do in Xcode, and I don't really recommend the use of them.  Nor do I recommend that you use a UICollectionView for your next game.  I do recommend having fun with things. 
 
+## Update
 
-
-
+Also see the [Tetris Diffing Competition](https://skagedal.github.io/2018/09/28/tetris-diffing-competition.html) for a comparison on how other frameworks handle this task.
