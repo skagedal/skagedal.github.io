@@ -2,6 +2,7 @@
 layout: post
 title:  "Collection View Tetris"
 date:   2018-08-23 23:01:28 +0200
+redirect_to: "https://blog.skagedal.tech/2018/08/23/collection-view-tetris.html"
 ---
 
 I'd like to tell the story of how exploring table view animations led me to this beautiful use of Xcode's color literals.

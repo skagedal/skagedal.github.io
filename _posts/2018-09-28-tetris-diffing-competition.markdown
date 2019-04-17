@@ -2,6 +2,7 @@
 layout: post
 title:  "The Tetris Diffing Competition"
 date:   2018-09-28 23:01:28 +0200
+redirect_to: "https://blog.skagedal.tech/2018/09/28/tetris-diffing-competition.html"
 ---
 
 [My post](https://skagedal.github.io/2018/08/23/collection-view-tetris.html) about Collection View Tetris was picked up as the "and finally..." entry by the ever-awesome news letter [iOS Dev Weekly](https://iosdevweekly.com/issues/371)! Nice. 

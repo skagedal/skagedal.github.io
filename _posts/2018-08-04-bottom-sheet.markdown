@@ -2,6 +2,7 @@
 layout: post
 title:  "Creating a Bottom Sheet"
 date:   2018-08-04 00:00:00 +0200
+redirect_to: "https://blog.skagedal.tech/2018/08/04/bottom-sheet.html"
 ---
 
 The _Bottom Drawer_ or _Bottom Sheet_ is a user interface pattern that is used more and more on iOS, [showing up](https://twitter.com/lukew/status/1016388934933217282) in Apple’s own apps like Apple Music and Maps. But as of yet, there is no standard component for app developers to use. In this post I will show an approach to creating this kind of UI.  The purpose of the post is to explain the general idea; if you want to, you can follow along in the commits of [this example project](https://github.com/skagedal/BottomSheet).  

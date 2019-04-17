@@ -2,6 +2,7 @@
 layout: post
 title:  "Specifying device in simcd"
 date:   2018-01-05 17:00:00 +0200
+redirect_to: "https://blog.skagedal.tech/2018/01/05/simcd-part-2.html"
 ---
 
 In my [previous post](https://skagedal.github.io/2018/01/02/simcd.html), I created a `zsh` plugin for changing current directory to the data container of an app in the currently booted Xcode simulator.  However, as of Xcode 9, we can have several simulators open at once.  We therefore need to be able to choose the simulator that `simcd` should operate on.  

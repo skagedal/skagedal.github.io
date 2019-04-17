@@ -2,6 +2,7 @@
 layout: post
 title:  "Xcode Simulator integration in zsh"
 date:   2018-01-02 22:00:00 +0200
+redirect_to: "https://blog.skagedal.tech/2018/01/02/simcd.html"
 ---
 
 When running an app in Xcode's iPhone simulator, you'll often want to locate the place on disk where the app stores its documents and other local files, i.e., the app's data container.  There are some nice tools that help out with this, such as [SimPholders](https://simpholders.com/) and [simsim](https://github.com/dsmelov/simsim).  Being a command line user, however, I would really like to have something integrated in my shell.

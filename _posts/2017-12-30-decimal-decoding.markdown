@@ -2,6 +2,7 @@
 layout: post
 title:  "JSON and Decimal numbers"
 date:   2017-12-30 23:00:00 +0200
+redirect_to: "https://blog.skagedal.tech/2017/12/30/decimal-decoding.html"
 ---
 
 A JSON document can contain numbers, written in decimal notation. The standard does not specify any type for these numbers – a number is just defined syntactically as a sequence of digits, optionally followed by a dot and some more digits.  (There may also be a minus sign in the front and an exponent in the end – see [the standard](http://json.org/) for the exact specification.)
