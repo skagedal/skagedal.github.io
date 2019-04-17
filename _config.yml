@@ -17,3 +17,6 @@ github_username:  skagedal
 
 # Build settings
 markdown: kramdown
+
+gems:
+  - jekyll-redirect-from
